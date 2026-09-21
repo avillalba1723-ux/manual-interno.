@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Manual interno CAAP y AAA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F6FB; --surface:#FFFFFF; --ink:#1B2A55; --muted:#55628A;
+  --line:#D9DFEE; --orange:#E5702A; --orange-soft:#FCE6D6; --navy:#24408E;
+  --mint:#E4F0DA; --mint-ink:#2E5A1E; --warn:#FFF3CD; --warn-ink:#6B5200;
+  --caap:#24408E; --aaa:#E5702A;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10162B; --surface:#182142; --ink:#EAEFFC; --muted:#A5B0D3;
+    --line:#2C3963; --orange:#FF8A4C; --orange-soft:#3B2A25; --navy:#8FA8FF;
+    --mint:#20331D; --mint-ink:#B9E3A4; --warn:#3A3116; --warn-ink:#F3D98A;
+    --caap:#8FA8FF; --aaa:#FF8A4C;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10162B; --surface:#182142; --ink:#EAEFFC; --muted:#A5B0D3;
+  --line:#2C3963; --orange:#FF8A4C; --orange-soft:#3B2A25; --navy:#8FA8FF;
+  --mint:#20331D; --mint-ink:#B9E3A4; --warn:#3A3116; --warn-ink:#F3D98A;
+  --caap:#8FA8FF; --aaa:#FF8A4C;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box}
+body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+  font-family:'Figtree',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:16px;line-height:1.55}
+h1,h2,h3{font-family:'Bricolage Grotesque','Trebuchet MS',Arial,sans-serif;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,4.4vw,3.2rem);font-weight:700;letter-spacing:-.02em}
+h2{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:700;letter-spacing:-.01em;margin-bottom:.4rem}
+h3{font-size:1.15rem;font-weight:600;margin-bottom:.5rem}
+p{margin:.4rem 0 .8rem;max-width:72ch}
+a{color:var(--navy)}
+:focus-visible{outline:3px solid var(--orange);outline-offset:2px;border-radius:4px}
+
+.layout{display:grid;grid-template-columns:270px 1fr;min-height:100%}
+.side{position:sticky;top:0;align-self:start;height:100vh;overflow-y:auto;padding:22px 16px 30px;
+  background:var(--surface);border-right:1px solid var(--line)}
+.brand{font-family:'Bricolage Grotesque',Arial,sans-serif;font-weight:700;font-size:1.25rem;line-height:1.2;margin:0 6px 4px}
+.brand small{display:block;font-family:'Figtree',Arial,sans-serif;font-weight:400;font-size:.85rem;color:var(--muted);margin-top:2px}
+.group{margin:18px 6px 6px;font-size:.85rem;font-weight:600;color:var(--muted)}
+.side button.nav{display:block;width:100%;text-align:left;background:none;border:0;border-left:3px solid transparent;
+  color:var(--ink);font:inherit;padding:8px 10px;margin:1px 0;cursor:pointer;border-radius:0 8px 8px 0}
+.side button.nav:hover{background:var(--bg)}
+.side button.nav[aria-current="page"]{border-left-color:var(--orange);background:var(--orange-soft);font-weight:600}
+.theme{margin:18px 6px 0}
+.theme button{font:inherit;font-size:.85rem;background:none;border:1px solid var(--line);color:var(--muted);border-radius:999px;padding:5px 12px;cursor:pointer}
+
+main{padding:36px clamp(18px,4vw,56px) 70px;max-width:1040px}
+.page[hidden]{display:none}
+.lead{color:var(--muted);font-size:1.05rem;margin-bottom:1.4rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.grid .card{margin:0}
+.tag{display:inline-block;font-size:.8rem;font-weight:600;padding:2px 10px;border-radius:999px;color:#fff;margin-right:6px;vertical-align:middle}
+.tag.caap{background:#24408E}.tag.aaa{background:#C9581A}
+.tag.both{background:var(--muted)}
+.note{background:var(--warn);color:var(--warn-ink);border-radius:10px;padding:10px 14px;margin:14px 0;max-width:72ch}
+.ok{background:var(--mint);color:var(--mint-ink);border-radius:10px;padding:10px 14px;margin:14px 0;max-width:72ch}
+ul.plain{margin:.3rem 0 .6rem;padding-left:1.15rem}
+ul.plain li{margin:.25rem 0}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.tabs button{font:inherit;font-weight:500;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 16px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+:root[data-theme="dark"] .tabs button[aria-selected="true"]{color:#10162B}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tabs button[aria-selected="true"]{color:#10162B}}
+.panel[hidden]{display:none}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top}
+th{background:var(--orange-soft)}
+ol.steps{list-style:none;counter-reset:s;margin:12px 0;padding:0;max-width:78ch}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:38px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+ol.steps li::before{content:counter(s);width:32px;height:32px;border-radius:50%;background:var(--orange);color:#fff;
+  display:grid;place-items:center;font-weight:700;font-family:'Bricolage Grotesque',Arial,sans-serif}
+ol.steps b{display:block}
+.script{border-left:4px solid var(--orange);background:var(--surface);padding:12px 16px;border-radius:0 10px 10px 0;margin:10px 0;max-width:76ch}
+.org{display:flex;flex-direction:column;align-items:center;gap:14px;margin:16px 0}
+.org .row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.org .box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 16px;text-align:center;min-width:170px}
+.org .box b{display:block}
+.org .top{border-color:var(--navy);border-width:2px}
+.pill-list{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.pill-list span{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 14px}
+.flow{display:grid;gap:10px;max-width:80ch}
+.flow .item{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px}
+.flow .item b{color:var(--orange)}
+.chap{display:grid;grid-template-columns:minmax(150px,240px) 1fr;gap:6px 18px;padding:11px 0;border-bottom:1px solid var(--line)}
+.chap dt{font-weight:600;color:var(--navy)}.chap dd{margin:0}
+dl{margin:8px 0}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:4px 14px;margin:6px 0}
+.kv dt{color:var(--muted)}.kv dd{margin:0;font-weight:500}
+.big{font-family:'Bricolage Grotesque',Arial,sans-serif;font-size:1.15rem;font-weight:600}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr}
+  .side{position:sticky;top:0;z-index:5;height:auto;max-height:none;overflow:visible;padding:10px 12px;border-right:0;border-bottom:1px solid var(--line);
+    padding-top:calc(10px + env(safe-area-inset-top,0px))}
+  .brand small,.group,.theme{display:none}
+  .sidenav{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+  .side button.nav{width:auto;white-space:nowrap;border-left:0;border-bottom:3px solid transparent;border-radius:8px 8px 0 0;padding:7px 12px}
+  .side button.nav[aria-current="page"]{border-bottom-color:var(--orange)}
+  main{padding-top:24px}
+  .chap{grid-template-columns:1fr}
+  .kv{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:no-preference){.page{animation:in .18s ease-out}}
+@keyframes in{from{opacity:.0}to{opacity:1}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side" aria-label="Menú del manual">
+    <p class="brand">Manual interno<small>CAAP S.A.S. y AAA S.A.S.</small></p>
+    <nav class="sidenav" id="nav"></nav>
+    <div class="theme"><button id="themeBtn" type="button">Cambiar tema</button></div>
+  </aside>
+
+  <main id="main" tabindex="-1">
+
+<!-- INICIO -->
+<section class="page" id="inicio">
+  <h1>Manual interno de CAAP y AAA</h1>
+  <p class="lead">Guía para asesores comerciales y personal de ambas empresas: quiénes somos, dónde estamos, cómo atendemos, cómo cobramos y cómo se estructura un trabajo académico.</p>
+  <div class="note"><b>Uso interno.</b> Este manual es solo para el personal y los asesores. No se comparte con clientes.</div>
+  <div class="grid">
+    <div class="card"><h3>Las empresas</h3>
+      <p>Misión, visión, organigrama, sucursales y datos legales.</p>
+      <ul class="plain"><li><a href="#empresas">Empresas y organigrama</a></li><li><a href="#sucursales">Sucursales</a></li><li><a href="#legal">Parte legal</a></li></ul></div>
+    <div class="card"><h3>Atención al cliente</h3>
+      <p>Cómo saludar, qué preguntar y cómo llevar un trabajo de principio a fin.</p>
+      <ul class="plain"><li><a href="#saludos">Saludos de protocolo</a></li><li><a href="#ventas">Preguntas de venta</a></li><li><a href="#proceso">Proceso de un trabajo</a></li><li><a href="#cobros">Medios de cobro</a></li></ul></div>
+    <div class="card"><h3>Servicios</h3>
+      <p>Qué vendemos y qué considerar antes de cotizar.</p>
+      <ul class="plain"><li><a href="#servicios">Servicios y productos</a></li><li><a href="#practica">Parte práctica en ingenierías</a></li><li><a href="#titulacion">Modalidades de titulación</a></li></ul></div>
+    <div class="card"><h3>Trabajo académico</h3>
+      <p>Referencia rápida para entender lo que pide el cliente.</p>
+      <ul class="plain"><li><a href="#tesis">Estructura de una tesis</a></li><li><a href="#metodologia">Revisión metodológica</a></li><li><a href="#apa">Normas APA 7 y citas</a></li></ul></div>
+    <div class="card"><h3>Día a día</h3>
+      <p>Buenas prácticas de las sucursales y control de horario.</p>
+      <ul class="plain"><li><a href="#recomendaciones">Recomendaciones generales</a></li><li><a href="#nomina">Registro de horario</a></li></ul></div>
+  </div>
+</section>
+
+<!-- EMPRESAS -->
+<section class="page" id="empresas" hidden>
+  <h2>Empresas y organigrama</h2>
+  <p class="lead">Dos marcas que trabajan en el mismo rubro: asesoría en el desarrollo y la revisión de trabajos académicos.</p>
+  <div class="grid">
+    <div class="card"><span class="tag caap">CAAP</span><h3>Misión</h3>
+      <p>Somos una empresa multinacional que brinda servicios de asesoría en el desarrollo y revisión de trabajos en todos los niveles académicos, garantizando confidencialidad, originalidad, calidad y puntualidad. Lo hacemos con un equipo multidisciplinario comprometido con los objetivos y la satisfacción de nuestros clientes.</p></div>
+    <div class="card"><span class="tag caap">CAAP</span><h3>Visión</h3>
+      <p>Para el año 2026, ser una empresa líder en el servicio de asesoría en el desarrollo y revisión de trabajos académicos, con mayor presencia en países de habla hispana y otras lenguas, ofreciendo servicios y productos de alta competitividad y garantizando la mejora continua de nuestros procesos, colaboradores y clientes.</p></div>
+  </div>
+  <div class="card"><span class="tag aaa">AAA</span><h3>Asesoría y Ayuda Académica (AAA S.A.S.)</h3>
+    <p>Asesoramiento integral en tesis, artículos científicos, monografías, proyectos y deberes, para pregrado, maestría y doctorado.</p>
+    <dl class="kv"><dt>Teléfono / WhatsApp</dt><dd>0999 2222 44</dd><dt>Establecida desde</dt><dd>2014 (constituida como compañía en marzo de 2024)</dd></dl></div>
+
+  <h3 style="margin-top:26px"><span class="tag caap">CAAP</span>Organigrama</h3>
+  <div class="org" role="group" aria-label="Organigrama de CAAP">
+    <div class="box top"><b>Gerencia general</b>MSc. Freddy Iván Murillo Bustamante</div>
+    <div class="row">
+      <div class="box"><b>Gerente comercial</b>Ing. Luis Yaguachi</div>
+      <div class="box"><b>Administración general</b>Lic. Nuria Romero</div>
+      <div class="box"><b>Recursos humanos y asignaciones</b>Ing. Fátima Hernández</div>
+      <div class="box"><b>Calidad</b>Ing. Sandra Chávez</div>
+    </div>
+    <div class="row">
+      <div class="box"><b>Departamento de sistemas</b>Ing. Freddy Bazantes</div>
+      <div class="box"><b>Departamento de marketing</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- SUCURSALES -->
+<section class="page" id="sucursales" hidden>
+  <h2>Sucursales</h2>
+  <p class="lead">Elige la empresa y el país para ver las direcciones.</p>
+  <div class="tabs" role="tablist" data-tabs="suc">
+    <button role="tab" aria-selected="true" data-p="suc-caap-ec">CAAP Ecuador</button>
+    <button role="tab" aria-selected="false" data-p="suc-aaa-ec">AAA Ecuador</button>
+    <button role="tab" aria-selected="false" data-p="suc-pe">Perú</button>
+    <button role="tab" aria-selected="false" data-p="suc-bo">Bolivia</button>
+  </div>
+
+  <div class="panel" id="suc-caap-ec">
+    <div class="grid">
+      <div class="card"><h3>1. Matriz – Quito</h3><p>Av. Patria y 10 de Agosto, Edificio Banco de Préstamos, piso 11, oficina 1102.</p></div>
+      <div class="card"><h3>2. América – Quito</h3><p>Av. América y Ramírez Dávalos Oe-145, esquina, 4.º piso.</p></div>
+      <div class="card"><h3>3. Ibarra</h3><p>Vicente Rocafuerte N8-51 y Pedro Moncayo, frente al Registro Civil.</p></div>
+      <div class="card"><h3>4. Ambato</h3><p>Av. Cevallos 21-47 y Olmedo, sobre Importlens, 2.º piso.</p></div>
+      <div class="card"><h3>5. Riobamba</h3><p>Av. José Veloz 37-20 y Brasil, 2.º piso, junto a Ecuadental.</p></div>
+      <div class="card"><h3>6. Cuenca Centro</h3><p>Benigno Malo 7-27 y Mariscal Sucre, Edificio El Galeón, piso 1.</p></div>
+      <div class="card"><h3>7. Cuenca Remigio</h3><p>Remigio Tamariz y Av. Solano, Edificio Office, 2.º piso, oficina 2-4.</p></div>
+      <div class="card"><h3>8. Guayaquil</h3><p>Tungurahua 703 y Vélez, Edificio Ópera, oficina 302, 3.er piso.</p></div>
+      <div class="card"><h3>Virtual</h3><p>Atención en línea.</p></div>
+    </div>
+  </div>
+
+  <div class="panel" id="suc-aaa-ec" hidden>
+    <div class="grid">
+      <div class="card"><h3>Matriz – Quito</h3><p>Av. América y Ramírez Dávalos, Edificio Dilipa, oficina 104.</p></div>
+      <div class="card"><h3>Ambato</h3><p>Redondel de Huachi Chico, vía a Guaranda, Av. José Peralta, frente a la panadería El Buen Pan, altos del Sabor Costeño.</p></div>
+      <div class="card"><h3>Ibarra</h3><p>Chica Narváez 10-17 y Oviedo, frente al redondel Cabezas Borja.</p></div>
+      <div class="card"><h3>Riobamba</h3><p>Eugenio Espejo 21-70 y José de Orozco, frente a las Farmacias Económicas, en el segundo piso.</p></div>
+      <div class="card"><h3>Cuenca</h3><p>Av. Las Américas y Francisco E. Tamariz 4-75.</p></div>
+    </div>
+  </div>
+
+  <div class="panel" id="suc-pe" hidden>
+    <div class="grid">
+      <div class="card"><span class="tag caap">CAAP</span><span class="tag aaa">AAA</span><h3>Lima</h3>
+        <p><b>CAAP:</b> Distrito Barranco, Edificio Grau 15, calle Buena Aventura Aguirre y Av. Almte. Miguel Grau.</p>
+        <p><b>AAA:</b> Distrito Barranco, calle Almirante Miguel Grau, Edificio Grau 15.</p></div>
+      <div class="card"><span class="tag caap">CAAP</span><h3>Arequipa</h3><p>Urbanización Valencia, Av. Quiñónez C-18A, distrito Yanahuara.</p></div>
+      <div class="card"><span class="tag caap">CAAP</span><h3>Piura</h3><p>Av. Guillermo Gullman 559 y Av. Grau, segundo piso, oficina 202.</p></div>
+    </div>
+    <p>Sitio web CAAP Perú: <a href="https://www.desarrollodetesissperu.com" target="_blank" rel="noopener">www.desarrollodetesissperu.com</a></p>
+  </div>
+
+  <div class="panel" id="suc-bo" hidden>
+    <div class="grid">
+      <div class="card"><span class="tag caap">CAAP</span><h3>La Paz</h3><p>Zona de Sopocachi, calle Gregorio Reynolds 665 (referencia: plaza España).</p></div>
+      <div class="card"><span class="tag caap">CAAP</span><h3>Santa Cruz</h3><p>Virtual.</p></div>
+    </div>
+    <p>Sitio web CAAP Bolivia: <a href="https://lapaz.elaboracion-de-tesis-bolivia.com" target="_blank" rel="noopener">lapaz.elaboracion-de-tesis-bolivia.com</a></p>
+  </div>
+</section>
+
+<!-- LEGAL -->
+<section class="page" id="legal" hidden>
+  <h2>Parte legal</h2>
+  <p class="lead">Datos de registro y facturación de cada empresa por país.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Empresa y país</th><th>Registro</th><th>Número</th><th>Comprobante</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag caap">CAAP</span>Ecuador</td><td>Compañía constituida legalmente, registrada en el SRI, con el aval de la Cámara de Comercio de Quito</td><td>RUC 1793202299001</td><td>Factura con 15 % de IVA</td></tr>
+      <tr><td><span class="tag caap">CAAP</span>Perú</td><td>Registrada en SUNAT</td><td>RUC 15605151008</td><td>Boleta o factura electrónica, 18 % de IGV</td></tr>
+      <tr><td><span class="tag caap">CAAP</span>Bolivia</td><td>Registrada con NIT</td><td>NIT 490670026</td><td>Factura con 16 %</td></tr>
+      <tr><td><span class="tag aaa">AAA</span>Ecuador</td><td>Registrada legalmente en el SRI. Establecida desde 2014 y constituida como compañía desde marzo de 2024</td><td>RUC 1793215156001</td><td>Factura con 15 % de IVA. No es agente de retención</td></tr>
+    </tbody></table></div>
+</section>
+
+<!-- SALUDOS -->
+<section class="page" id="saludos" hidden>
+  <h2>Saludos de protocolo</h2>
+  <p class="lead">Protocolo de AAA. Completa los espacios con tu nombre y el de tu sucursal.</p>
+  <h3>Cuando llega un cliente a la oficina</h3>
+  <div class="script">“Buenas tardes, bienvenido a Asesoría y Ayuda Académica. Le saluda <b>[tu nombre]</b>, asesor comercial de esta sucursal. Siga adelante, tome asiento. ¿Con quién tengo el gusto? ¿En qué le puedo ayudar?”</div>
+  <h3 style="margin-top:22px">Cuando llaman por teléfono</h3>
+  <div class="script">“Asesoría y Ayuda Académica, buenos días. Le saluda <b>[tu nombre]</b>, asesor comercial de la sucursal <b>[sucursal]</b>. ¿Con quién tengo el gusto?”</div>
+</section>
+
+<!-- VENTAS -->
+<section class="page" id="ventas" hidden>
+  <h2>Cinco preguntas para toda venta</h2>
+  <p class="lead">Estas preguntas deben aparecer siempre en el diálogo con un posible cliente (guía de CAAP).</p>
+  <div class="flow">
+    <div class="item"><b>¿De qué especialidad es?</b></div>
+    <div class="item"><b>¿Ya cuenta con el tema aprobado?</b></div>
+    <div class="item"><b>¿Cuál es su requerimiento?</b></div>
+    <div class="item"><b>¿Cuánto tiempo dispone para la entrega?</b></div>
+    <div class="item"><b>¿Cuál es el formato para desarrollar?</b></div>
+  </div>
+  <h3 style="margin-top:26px">Especialidades más demandadas</h3>
+  <div class="pill-list"><span>Administración</span><span>Medicina</span><span>Contabilidad</span><span>Derecho</span><span>Ingeniería industrial</span><span>Educación</span><span>Sistemas</span><span>Marketing</span></div>
+</section>
+
+<!-- PROCESO -->
+<section class="page" id="proceso" hidden>
+  <h2>Proceso de un trabajo</h2>
+  <p class="lead">Los diez pasos de CAAP, desde la primera consulta hasta la entrega.</p>
+  <ol class="steps">
+    <li><div><b>Dar información al posible cliente</b>Explicar los servicios, el precio y las fechas de entrega.</div></li>
+    <li><div><b>Si firma el contrato</b>Cobrar el abono inicial y entregar la factura o boleta.</div></li>
+    <li><div><b>Solicitar la información</b>Archivar el formato y los lineamientos de la universidad en una carpeta con el nombre del cliente. Asignar la nueva contratación.</div></li>
+    <li><div><b>Informar la asignación</b>Enviar toda la información al correo de Gestión académica, escribir por WhatsApp y llamar para avisar de la nueva asignación.</div></li>
+    <li><div><b>Reunión con el asesor técnico</b>Coordinar la reunión inicial entre cliente y asesor. Debe grabarse, pero antes se pide autorización al cliente. Se recomienda enviar la grabación al asesor técnico.</div></li>
+    <li><div><b>Seguimiento de la asignación</b>Comunicarse con el asesor con frecuencia para saber cómo va el trabajo.</div></li>
+    <li><div><b>Recepción del trabajo del asesor</b>Comprobar que se hizo lo solicitado y enviarlo al departamento de calidad.</div></li>
+    <li><div><b>Recepción del trabajo revisado</b>Con el documento de calidad, decidir si se reenvía al asesor para corregir o se envía al cliente.</div></li>
+    <li><div><b>Recepción del trabajo corregido</b>Verificar que se corrigió. Antes de enviarlo al cliente, se recomienda que los pagos estén al día.</div></li>
+    <li><div><b>Enviar el trabajo al cliente</b>Enviar el documento por correo, avisar por WhatsApp y pedir que el cliente confirme la recepción.</div></li>
+  </ol>
+</section>
+
+<!-- COBROS -->
+<section class="page" id="cobros" hidden>
+  <h2>Medios de cobro</h2>
+  <p class="lead">Lo que acepta cada empresa según el país.</p>
+  <div class="grid">
+    <div class="card"><span class="tag caap">CAAP</span><h3>Ecuador</h3><div class="pill-list"><span>Efectivo</span><span>Transferencia</span><span>Datafast o POS</span><span>PayPal</span><span>Depósito</span><span>Cheque</span></div></div>
+    <div class="card"><span class="tag caap">CAAP</span><h3>Perú</h3><div class="pill-list"><span>Efectivo</span><span>Transferencia</span><span>Data link</span><span>PayPal</span><span>Depósito</span><span>Plin</span></div></div>
+    <div class="card"><span class="tag caap">CAAP</span><h3>Bolivia</h3><div class="pill-list"><span>Efectivo</span><span>Transferencia</span><span>PayPal</span><span>Depósito</span><span>QR</span></div></div>
+    <div class="card"><span class="tag aaa">AAA</span><h3>Ecuador</h3><div class="pill-list"><span>Efectivo</span><span>Depósito</span><span>Transferencia</span><span>Cheque</span><span>PayPal</span><span>Datalink</span></div>
+      <p>Datalink permite enviar un link de pago por chat o correo electrónico.</p></div>
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<section class="page" id="servicios" hidden>
+  <h2>Servicios y productos</h2>
+  <p class="lead">Se atienden todas las áreas y todos los niveles.</p>
+  <div class="grid">
+    <div class="card"><span class="tag both">CAAP y AAA</span><h3>1. Asesoría o clases personalizadas</h3>
+      <p>Asesoría por horas, según los temas que el cliente solicite.</p>
+      <ul class="plain"><li>Coordinar con 24 a 48 horas de anticipación.</li><li>El cliente envía los tópicos o el temario de la capacitación.</li></ul></div>
+    <div class="card"><span class="tag both">CAAP y AAA</span><h3>2. Desarrollo y capacitación</h3>
+      <p>Tema, plan de tesis, tesis completa o por capítulos, parte práctica, proyectos, ensayos, artículos científicos o académicos, deberes o tareas, plan de negocios, tesinas y monografías.</p>
+      <ul class="plain"><li>Se desarrolla desde el tema si el cliente lo solicita.</li><li>El cliente siempre da el formato o un ejemplo del trabajo contratado.</li><li>En todo trabajo de campo, el cliente ayuda con la información.</li></ul></div>
+  </div>
+  <h3 style="margin-top:26px">Principales productos de CAAP</h3>
+  <div class="grid">
+    <div class="card"><ul class="plain"><li>Propuestas de tema</li><li>Plan de tesis, proyecto de tesis o anteproyecto</li><li>Tesis completa</li><li>Capítulos de tesis</li><li>Corrección de tesis</li><li>Corrección de plan de tesis</li><li>Disminución de plagio y reporte de plagio</li><li>Diapositivas</li></ul></div>
+    <div class="card"><ul class="plain"><li>Aplicación de normas APA</li><li>Simulaciones, aplicaciones y prototipos</li><li>Modelos econométricos</li><li>Monografías, ensayos y tareas</li><li>Diseño de planos</li><li>Análisis estadísticos en SPSS</li><li>Revisión de trabajos de investigación</li><li>Artículo científico</li></ul></div>
+  </div>
+</section>
+
+<!-- PRACTICA -->
+<section class="page" id="practica" hidden>
+  <h2>Parte práctica en ingenierías</h2>
+  <p class="lead">Antes de cotizar, reúnete con los asesores técnicos y confirma estos puntos.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Especialidad</th><th>Qué es la parte práctica</th><th>Qué conocer antes de cotizar</th></tr></thead>
+    <tbody>
+      <tr><td>Ing. Sistemas</td><td>Desarrollo del software o de algún sistema.</td><td>El alcance, la base de datos y el lenguaje de programación.</td></tr>
+      <tr><td>Ing. Eléctrica o Electrónica</td><td>Simulación, prototipo o cálculos en algún software.</td><td>La complejidad y en qué software se harán los cálculos; si el asesor lo domina o no.</td></tr>
+      <tr><td>Ing. Mecatrónica o Robótica</td><td>Diseño de algún robot.</td><td>Qué materiales se usarán y qué tan complejo es el diseño.</td></tr>
+      <tr><td>Ing. Civil y Arquitectura</td><td>Topografías, cálculos, diseño de planos y renders.</td><td>La metodología para los cálculos, cuántos planos se harán y en qué programa.</td></tr>
+    </tbody></table></div>
+</section>
+
+<!-- TITULACION -->
+<section class="page" id="titulacion" hidden>
+  <h2>Modalidades de titulación</h2>
+  <p class="lead">Cambian según el país. Confirma siempre cuál exige la universidad del cliente.</p>
+  <div class="grid">
+    <div class="card"><h3>Ecuador</h3><div class="pill-list"><span>Tesis</span><span>Artículos científicos</span><span>Tesina</span><span>Monografía</span><span>Estudios de caso</span><span>Caso práctico</span><span>Examen complexivo</span></div></div>
+    <div class="card"><h3>Perú</h3><div class="pill-list"><span>Tesis</span><span>Artículos científicos</span><span>Tesina</span><span>Monografía</span><span>Informe de suficiencia profesional (PET)</span><span>PIA I, II y III</span></div></div>
+    <div class="card"><h3>Bolivia</h3><div class="pill-list"><span>Tesis</span><span>Monografía</span><span>Trabajos dirigidos</span></div></div>
+  </div>
+</section>
+
+<!-- TESIS -->
+<section class="page" id="tesis" hidden>
+  <h2>Estructura general de una tesis</h2>
+  <p class="lead">Se muestran las dos versiones que usan las empresas.</p>
+  <div class="tabs" role="tablist" data-tabs="tes">
+    <button role="tab" aria-selected="true" data-p="tes-aaa">Versión AAA (5 capítulos)</button>
+    <button role="tab" aria-selected="false" data-p="tes-caap">Versión CAAP (6 capítulos)</button>
+  </div>
+  <div class="panel" id="tes-aaa">
+    <dl>
+      <div class="chap"><dt>Hojas preliminares</dt><dd>Portada, dedicatoria, derechos de autor, certificaciones, resumen y abstract.</dd></div>
+      <div class="chap"><dt>Capítulo 1: Introducción</dt><dd>Problema de investigación, justificación, objetivos (general y específicos) e hipótesis.</dd></div>
+      <div class="chap"><dt>Capítulo 2: Marco teórico</dt><dd>Antecedentes nacionales e internacionales, marco conceptual.</dd></div>
+      <div class="chap"><dt>Capítulo 3: Metodología</dt><dd>Enfoque, tipo y diseño de la investigación, población, muestra, técnicas e instrumentos, plan de recolección y aspectos éticos.</dd></div>
+      <div class="chap"><dt>Capítulo 4: Análisis y discusión de resultados</dt><dd>Análisis e interpretación de resultados, verificación de hipótesis y discusión.</dd></div>
+      <div class="chap"><dt>Capítulo 5: Propuesta</dt><dd>Tema, antecedentes, objetivos, modelo operativo.</dd></div>
+      <div class="chap"><dt>Conclusiones y recomendaciones</dt><dd>Las conclusiones sintetizan los resultados y responden a los objetivos planteados. Las recomendaciones son sugerencias basadas en los resultados.</dd></div>
+      <div class="chap"><dt>Anexos</dt><dd>Instrumentos, consentimientos, etc.</dd></div>
+    </dl>
+  </div>
+  <div class="panel" id="tes-caap" hidden>
+    <dl>
+      <div class="chap"><dt>Páginas preliminares</dt><dd>Portada o carátula, páginas de la universidad, agradecimiento y dedicatoria, índice de contenidos, de tablas y de gráficos, resumen y abstract (parte importante de las preliminares).</dd></div>
+      <div class="chap"><dt>Capítulo 1: Introducción y planteamiento del problema</dt><dd>Problema de investigación, justificación y objetivos.</dd></div>
+      <div class="chap"><dt>Capítulo 2: Marco teórico</dt><dd>Antecedentes nacionales e internacionales, marco conceptual.</dd></div>
+      <div class="chap"><dt>Capítulo 3: Metodología</dt><dd>Enfoque, tipos y diseño de la investigación, población, muestra, técnicas e instrumentos, plan de procesamiento, plan de recolección y aspectos éticos.</dd></div>
+      <div class="chap"><dt>Capítulo 4: Análisis de resultados</dt><dd>Análisis e interpretación de resultados, verificación de hipótesis y discusión.</dd></div>
+      <div class="chap"><dt>Capítulo 5: Propuesta</dt><dd>Tema, antecedentes, objetivos, modelo operativo.</dd></div>
+      <div class="chap"><dt>Capítulo 6: Conclusiones y recomendaciones</dt><dd>Conclusiones y recomendaciones.</dd></div>
+      <div class="chap"><dt>Bibliografía o referencias</dt><dd>Fuentes citadas en el trabajo.</dd></div>
+      <div class="chap"><dt>Anexos</dt><dd>Formato de la encuesta, entrevista, ficha de observación o cualquier instrumento usado; matriz de consistencia y matriz de operacionalización de variables; carta de permiso de la empresa donde se desarrolló el estudio.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- METODOLOGIA -->
+<section class="page" id="metodologia" hidden>
+  <h2>Revisión metodológica de tesis</h2>
+  <p class="lead">Lista de control en orden, para revisar que las partes de la tesis se correspondan entre sí.</p>
+  <ol class="steps">
+    <li><div><b>Título</b>Con delimitación espacial y temporal.</div></li>
+    <li><div><b>Problema de investigación</b>Se plantea en tres niveles: macro, meso y micro. De él salen la pregunta de investigación y las preguntas específicas.</div></li>
+    <li><div><b>Objetivo general</b>Empieza con un verbo en infinitivo y va alineado al tema. Tiene su hipótesis general.</div></li>
+    <li><div><b>Objetivos específicos</b>Se derivan del objetivo general y dan respuesta a cada capítulo de la tesis. Cada uno tiene su hipótesis específica.</div></li>
+    <li><div><b>Marco teórico</b>Antecedentes internacionales (4), nacionales (4) y locales (4); bases teóricas; definición de variables y dimensiones; conceptualizar un promedio de 10 términos.</div></li>
+    <li><div><b>Metodología</b>
+      <ul class="plain"><li><b style="display:inline">Enfoque cuantitativo:</b> recolección de datos y técnicas estadísticas, como las encuestas.</li>
+      <li><b style="display:inline">Enfoque cualitativo:</b> interpretación de realidades subjetivas con datos no numéricos, como entrevistas y observaciones.</li>
+      <li>Tipos o niveles de investigación, diseño, modalidad, población y muestra, técnicas e instrumentos.</li></ul></div></li>
+    <li><div><b>Resultados</b>Exposición de los datos del trabajo de campo ya realizado, con un software estadístico; el más común es SPSS.</div></li>
+    <li><div><b>Conclusiones y recomendaciones</b>Las conclusiones corresponden a los objetivos planteados; las recomendaciones corresponden a las conclusiones.</div></li>
+  </ol>
+</section>
+
+<!-- APA -->
+<section class="page" id="apa" hidden>
+  <h2>Normas APA 7.ª edición y citas</h2>
+  <div class="grid">
+    <div class="card"><h3>Formato de página</h3>
+      <dl class="kv"><dt>Papel</dt><dd>Tamaño carta</dd><dt>Fuente</dt><dd>Times New Roman, 12 puntos</dd><dt>Interlineado</dt><dd>2.0</dd><dt>Márgenes</dt><dd>2,54 cm en los cuatro lados</dd><dt>Sangría</dt><dd>5 espacios</dd><dt>Numeración</dt><dd>1-2-3 y I, II, III</dd></dl></div>
+    <div class="card"><h3>Fuentes habilitadas en la 7.ª edición</h3>
+      <dl class="kv"><dt>Arial</dt><dd>11 puntos</dd><dt>Georgia</dt><dd>11 puntos</dd><dt>Calibri</dt><dd>11 puntos</dd><dt>Lucida Sans</dt><dd>10 puntos</dd></dl></div>
+  </div>
+  <h3 style="margin-top:26px">Tipos de citas</h3>
+  <div class="grid">
+    <div class="card"><h3>Cita corta</h3><p>Tiene menos de 40 palabras. Va entre comillas dentro del mismo párrafo. Puede centrarse en el autor o en el texto.</p></div>
+    <div class="card"><h3>Cita larga</h3><p>Tiene más de 40 palabras. Empieza en una línea nueva, en bloque, con sangría de 1,27 cm. No lleva comillas. Puede centrarse en el autor o en el texto.</p></div>
+    <div class="card"><h3>Cita de parafraseo</h3><p>Se usa la idea de otro autor, expresada con palabras propias. No se copian las palabras exactas: se resume o se explica de otra manera.</p></div>
+  </div>
+</section>
+
+<!-- RECOMENDACIONES -->
+<section class="page" id="recomendaciones" hidden>
+  <h2>Recomendaciones generales</h2>
+  <p class="lead">Para las sucursales de Ecuador, Perú y Bolivia (CAAP).</p>
+  <div class="grid">
+    <div class="card"><h3>Redes y mensajes</h3><ul class="plain">
+      <li>Tener registrados en el celular el correo y el Facebook de la sucursal, y saber su usuario y contraseña.</li>
+      <li>Responder de inmediato a los chats de posibles clientes.</li>
+      <li>Tener plantillas de respuesta para las redes sociales.</li>
+      <li>Conocer los canales digitales donde hoy se hace publicidad: Facebook y Google Ads.</li></ul></div>
+    <div class="card"><h3>Publicidad</h3><ul class="plain">
+      <li>El departamento de marketing es el encargado de pautar las publicaciones.</li>
+      <li>Se recomienda pedir cada mes el comprobante del pautaje.</li></ul></div>
+    <div class="card"><h3>Orden y seguimiento</h3><ul class="plain">
+      <li>Tener los formatos de las universidades, archivados en una carpeta digital.</li>
+      <li>Mantener actualizado el Excel de posibles clientes.</li>
+      <li>Saber cuántas personas escriben cada día por Facebook y WhatsApp.</li></ul></div>
+  </div>
+</section>
+
+<!-- NOMINA -->
+<section class="page" id="nomina" hidden>
+  <h2>Registro de horario</h2>
+  <p class="lead">El módulo de nómina de AAA registra cuatro marcaciones al día con el lector de huella y el sistema.</p>
+  <ol class="steps">
+    <li><div><b>Hora de ingreso en la mañana</b></div></li>
+    <li><div><b>Hora de salida a almorzar</b></div></li>
+    <li><div><b>Hora de ingreso del almuerzo</b></div></li>
+    <li><div><b>Hora de salida en la tarde</b></div></li>
+  </ol>
+  <div class="ok">Después de cada marcación, el sistema muestra el mensaje “Hora ingresada correctamente”.</div>
+</section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  var pages=[
+    ['inicio','Inicio',''],
+    ['empresas','Empresas y organigrama','Empresa'],
+    ['sucursales','Sucursales',''],
+    ['legal','Parte legal',''],
+    ['saludos','Saludos de protocolo','Atención al cliente'],
+    ['ventas','Preguntas de venta',''],
+    ['proceso','Proceso de un trabajo',''],
+    ['cobros','Medios de cobro',''],
+    ['servicios','Servicios y productos','Servicios'],
+    ['practica','Parte práctica en ingenierías',''],
+    ['titulacion','Modalidades de titulación',''],
+    ['tesis','Estructura de una tesis','Trabajo académico'],
+    ['metodologia','Revisión metodológica',''],
+    ['apa','Normas APA y citas',''],
+    ['recomendaciones','Recomendaciones generales','Día a día'],
+    ['nomina','Registro de horario','']
+  ];
+  var nav=document.getElementById('nav');
+  pages.forEach(function(p){
+    if(p[2]){var g=document.createElement('div');g.className='group';g.textContent=p[2];nav.appendChild(g);}
+    var b=document.createElement('button');
+    b.type='button';b.className='nav';b.textContent=p[1];b.dataset.id=p[0];
+    b.addEventListener('click',function(){go(p[0],true);});
+    nav.appendChild(b);
+  });
+  function go(id,push){
+    if(!document.getElementById(id))id='inicio';
+    document.querySelectorAll('.page').forEach(function(s){s.hidden=(s.id!==id);});
+    nav.querySelectorAll('button.nav').forEach(function(b){
+      if(b.dataset.id===id){b.setAttribute('aria-current','page');
+        if(b.scrollIntoView&&window.matchMedia('(max-width:860px)').matches){b.scrollIntoView({inline:'center',block:'nearest'});}
+      }else{b.removeAttribute('aria-current');}
+    });
+    if(push){try{history.replaceState(null,'','#'+id);}catch(e){}}
+    window.scrollTo(0,0);
+    document.getElementById('main').scrollTop=0;
+  }
+  window.addEventListener('hashchange',function(){go((location.hash||'#inicio').slice(1),false);});
+  document.querySelectorAll('.page a[href^="#"]').forEach(function(a){
+    a.addEventListener('click',function(e){e.preventDefault();go(a.getAttribute('href').slice(1),true);});
+  });
+  document.querySelectorAll('.tabs').forEach(function(t){
+    var btns=t.querySelectorAll('button');
+    btns.forEach(function(b){
+      b.addEventListener('click',function(){
+        btns.forEach(function(x){
+          var on=(x===b);x.setAttribute('aria-selected',on?'true':'false');
+          document.getElementById(x.dataset.p).hidden=!on;
+        });
+      });
+    });
+  });
+  var tb=document.getElementById('themeBtn');
+  tb.addEventListener('click',function(){
+    var root=document.documentElement;
+    var dark=root.getAttribute('data-theme')==='dark' ||
+      (!root.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    root.setAttribute('data-theme',dark?'light':'dark');
+  });
+  go((location.hash||'#inicio').slice(1),false);
+})();
+</script>
+</body>
+</html>
